@@ -3,7 +3,7 @@
 
 ______________
 # 🚀lancement
-Ouvre simplement `omega_1_21_1.html` dans n'importe quel navigateur moderne (Chrome, Firefox, Edge, Safari).
+Ouvre simplement `omega_1_21_3.html` dans n'importe quel navigateur moderne (Chrome, Firefox, Edge, Safari, Opera, Opera gx, même sur internet explorer, mais attend mais qui utilise encore internet explorer???).
 
 Aucun serveur, aucune installation requise.
 

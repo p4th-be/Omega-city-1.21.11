@@ -1,4 +1,4 @@
-# 🏙️OMEGA CITY  — v1.21.1 
+# 🏙️OMEGA CITY  — v1.21.3 
 ### Un jeu de construction de ville (city-builder) jouable entièrement dans le navigateur, sans installation ni dépendance externe. Un seul fichier HTML suffit.
 
 ______________
@@ -132,14 +132,14 @@ Le jeu est entièrement contenu dans **un seul fichier HTML** (~1 300 lignes) or
 La grille est de **60 × 60 tuiles** (32 px chacune). La propagation de l'électricité utilise un **algorithme BFS** depuis les sources d'énergie.
 
 ---
-## 📝 Notes de version 1.21.1
+## 📝 Notes de version 1.21.3
 
-- Ajout du système de **taxes** sur les habitations et bâtiments générateurs.
-- Refonte du calcul du revenu net : `Taxes + Exports − Entretien`.
-- Nouveau bâtiment : **turbine à vagues** (nécessite la technologie Océan).
-- Bâtiments militaires complets (petite/moyenne/grande base, aérodrome, antidrone).
-- Banques avec taxes massives pour les fins de partie.
-- Interface redimensionnable compatible **mobile (touch)**.
+### nouveau!!
+- la grille est maintenant bougeable sur tout les apareils
+- le probleme avec le launcher sur tel est fixé
+- ajout de discription et de tutoriel dans le launcher
+- zoom et dezoom ajouté
+
 
 ---
 ## 📄 Licence

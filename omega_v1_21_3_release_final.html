@@ -1,0 +1,1931 @@
+<!DOCTYPE html>
+
+<html lang="fr">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>OMEGA CITY 1.21.3</title>
+
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏙️</text></svg>">
+
+<style>
+
+/* --- CSS CORE --- */
+
+:root {
+
+--bg-dark: #050b14; --panel-bg: #0f172a; --border: #1e293b;
+
+--accent: #3b82f6; --accent-hover: #2563eb; --text-main: #f8fafc;
+
+--text-muted: #94a3b8; --danger: #ef4444; --success: #22c55e;
+
+--warning: #f59e0b; --gold: #ffd700; --font-mono: 'Courier New', monospace;
+
+--creative: #8b5cf6;
+
+--hard: #b91c1c;
+
+
+
+--left-w: 250px;
+
+--right-w: 250px;
+
+}
+
+
+
+* { box-sizing: border-box; user-select: none; -webkit-user-select: none; }
+
+
+
+body {
+
+margin: 0; padding: 0; background: var(--bg-dark); color: var(--text-main);
+
+font-family: 'Segoe UI', system-ui, sans-serif; height: 100vh;
+
+display: grid;
+
+grid-template-columns: var(--left-w) 12px 1fr 12px var(--right-w);
+
+grid-template-rows: 70px 1fr 200px;
+
+overflow: hidden;
+
+touch-action: none;
+
+}
+
+
+
+/* --- RESIZERS --- */
+
+.resizer {
+
+background: var(--border); cursor: col-resize; z-index: 200;
+
+transition: background 0.2s; display: flex; align-items: center; justify-content: center;
+
+}
+
+.resizer::after { content: "⋮"; color: #64748b; font-size: 16px; font-weight: bold; }
+
+.resizer:hover, .resizer.active { background: var(--accent); }
+
+.resizer.active::after { color: white; }
+
+#resizer-left { grid-column: 2 / 3; grid-row: 2 / 4; }
+
+#resizer-right { grid-column: 4 / 5; grid-row: 2 / 4; }
+
+
+
+/* --- LAUNCHER --- */
+
+#launcher {
+
+position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+
+background: radial-gradient(circle at center, #1e293b 0%, #020617 100%);
+
+z-index: 2000; display: flex; flex-direction: column;
+
+align-items: center; justify-content: center;
+
+overflow-y: auto; padding: 20px 16px 100px; box-sizing: border-box;
+
+}
+
+.launcher-title { font-size: clamp(28px, 8vw, 60px); font-weight: 900; letter-spacing: clamp(2px, 2vw, 5px); margin-bottom: clamp(20px, 5vw, 50px); text-shadow: 0 0 30px var(--accent); text-align: center; }
+
+.mode-cards { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; padding: 0; width: 100%; max-width: 960px; }
+
+.mode-card {
+
+background: rgba(255,255,255,0.05); border: 2px solid var(--border);
+
+padding: clamp(16px, 4vw, 30px); width: clamp(140px, 28vw, 280px); min-width: 140px; flex: 1 1 140px; max-width: 280px; border-radius: 16px; text-align: center;
+
+cursor: pointer; transition: 0.3s; position: relative; overflow: hidden;
+
+}
+
+.mode-card:hover { transform: translateY(-6px); background: rgba(255,255,255,0.1); }
+
+.mode-survie:hover { border-color: var(--success); box-shadow: 0 0 30px rgba(34, 197, 94, 0.3); }
+
+.mode-creatif:hover { border-color: var(--creative); box-shadow: 0 0 30px rgba(139, 92, 246, 0.3); }
+
+.mode-hard:hover { border-color: var(--hard); box-shadow: 0 0 30px rgba(220, 38, 38, 0.5); }
+
+.m-icon { font-size: clamp(28px, 6vw, 50px); display: block; margin-bottom: clamp(8px, 2vw, 20px); }
+
+.m-title { font-size: clamp(14px, 3.5vw, 24px); font-weight: bold; display: block; margin-bottom: clamp(4px, 1vw, 10px); }
+
+.m-desc { font-size: clamp(11px, 2.5vw, 13px); color: var(--text-muted); line-height: 1.5; }
+
+.badge-hard { position: absolute; top: 15px; right: -32px; background: var(--hard); color: white; transform: rotate(45deg); width: 120px; font-size: 11px; font-weight: bold; padding: 5px 0; box-shadow: 0 2px 5px rgba(0,0,0,0.5); }
+
+
+
+/* --- TOP BAR --- */
+
+#top-bar {
+
+grid-column: 1 / 6; background: var(--panel-bg); border-bottom: 1px solid var(--border);
+
+display: flex; align-items: center; justify-content: space-between; padding: 0 20px;
+
+box-shadow: 0 4px 15px rgba(0,0,0,0.5); z-index: 100; overflow-x: auto;
+
+}
+
+.brand { font-size: 20px; font-weight: 900; letter-spacing: 2px; color: var(--accent); white-space: nowrap; margin-right: 15px;}
+
+.res-strip { display: flex; gap: 15px; font-size: 14px; font-weight: bold; background: #020617; padding: 8px 15px; border-radius: 30px; border: 1px solid #1e293b; white-space: nowrap; }
+
+#ui-money { color: var(--gold); }
+
+
+
+/* --- LEFT PANEL --- */
+
+#left-panel {
+
+grid-column: 1 / 2; grid-row: 2 / 4; background: var(--panel-bg);
+
+display: flex; flex-direction: column; overflow: hidden;
+
+}
+
+#clicker-area { padding: 20px; border-bottom: 2px solid var(--border); background: radial-gradient(circle, #1e293b 0%, #0f172a 100%); text-align: center; }
+
+#btn-clicker { width: 100%; padding: 20px; font-size: 16px; font-weight: 900; border-radius: 12px; cursor: pointer; transition: 0.1s; text-transform: uppercase; color: white; border: 4px solid rgba(0,0,0,0.2); touch-action: manipulation; }
+
+#btn-clicker:active { transform: scale(0.98); }
+
+.tabs { display: flex; border-bottom: 1px solid var(--border); margin-top: 10px; }
+
+.tab { flex: 1; padding: 15px; text-align: center; cursor: pointer; background: #0b1120; font-size: 12px; font-weight: bold; color: var(--text-muted); transition: 0.2s; }
+
+.tab.active { background: var(--panel-bg); color: white; border-top: 2px solid white; }
+
+
+
+#build-menu { overflow-y: auto; flex: 1; padding: 10px; }
+
+.build-card {
+
+background: #1e293b; padding: 10px; border-radius: 6px; margin-bottom: 8px;
+
+cursor: pointer; border: 1px solid transparent; transition: 0.2s;
+
+display: grid; grid-template-columns: 35px 1fr; gap: 8px;
+
+}
+
+.build-card:hover { border-color: var(--accent); transform: translateX(5px); }
+
+.build-card.selected { border-color: var(--gold) !important; background: #1e3a8a; }
+
+.build-card.disabled { opacity: 0.4; pointer-events: none; filter: grayscale(1); }
+
+.build-separator {
+  display: flex; align-items: center; gap: 8px;
+  margin: 12px 0 8px; padding: 0 2px;
+  font-size: 10px; font-weight: 700; letter-spacing: 2px;
+  text-transform: uppercase; color: #22c55e;
+}
+.build-separator::before, .build-separator::after {
+  content: ''; flex: 1; height: 1px; background: linear-gradient(to right, #22c55e44, transparent);
+}
+.build-separator::before { background: linear-gradient(to right, transparent, #22c55e44); }
+.build-separator::after  { background: linear-gradient(to left,  transparent, #22c55e44); }
+
+.b-icon { font-size: 22px; display: flex; align-items: center; justify-content: center; }
+
+.b-info b { display: block; font-size: 12px; }
+
+.b-info small { color: var(--warning); font-size: 10px; }
+
+
+
+/* --- VIEWPORT --- */
+
+#viewport { grid-column: 3 / 4; grid-row: 2 / 3; position: relative; background: #000; overflow: hidden; cursor: crosshair; }
+
+canvas { display: block; }
+
+.floater { position: fixed; color: var(--gold); font-weight: bold; font-size: 20px; pointer-events: none; animation: floatUp 1s forwards; text-shadow: 0 2px 0 black; z-index: 9999; }
+
+@keyframes floatUp { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-50px); } }
+
+
+
+#hover-tooltip {
+
+position: fixed; background: rgba(0,0,0,0.9); padding: 8px 12px;
+
+border-radius: 4px; pointer-events: none; font-size: 13px; display: none;
+
+border: 1px solid var(--accent); z-index: 500; color: white; line-height: 1.4;
+
+}
+
+
+
+/* --- RIGHT PANEL --- */
+
+#right-panel { grid-column: 5 / 6; grid-row: 2 / 4; background: var(--panel-bg); display: flex; flex-direction: column; overflow-y: auto; padding: 15px; overflow-x: hidden; }
+
+.panel-section { margin-bottom: 20px; border-bottom: 1px solid #334155; padding-bottom: 15px; }
+
+h3 { font-size: 12px; text-transform: uppercase; color: #64748b; margin-top: 0; }
+
+.stat-row { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 8px; }
+
+.income-stat { color: var(--success); font-weight: bold; }
+
+.export-stat { color: #f472b6; font-weight: bold; }
+
+.tax-stat { color: var(--gold); font-weight: bold; }
+
+.p-bar-bg { width: 100%; height: 8px; background: #334155; border-radius: 4px; margin-top: 5px; }
+
+.p-bar-fill { height: 100%; background: var(--accent); border-radius: 4px; width: 0%; transition: width 0.5s; }
+
+
+
+/* --- LOGS --- */
+
+#log-panel { grid-column: 3 / 4; grid-row: 3 / 4; background: #020617; border-top: 1px solid var(--border); padding: 10px; font-family: var(--font-mono); font-size: 11px; color: #cbd5e1; overflow-y: auto; }
+
+.log-entry { margin-bottom: 4px; border-left: 3px solid #334155; padding-left: 8px; }
+
+.log-err { border-color: var(--danger); color: #fca5a5; }
+
+.log-suc { border-color: var(--success); color: #86efac; }
+
+.log-gold { border-color: var(--gold); color: var(--gold); }
+
+.log-sys { border-color: var(--accent); color: #bfdbfe; }
+
+.log-hard { border-color: var(--hard); color: #fecaca; }
+
+
+
+/* --- MODAL --- */
+
+.modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
+
+.modal-box { background: var(--panel-bg); width: 90%; max-width: 600px; padding: 30px; border-radius: 12px; border: 1px solid var(--accent); box-shadow: 0 0 50px rgba(59, 130, 246, 0.2); }
+
+.tech-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-top: 20px; }
+
+.tech-node { background: #1e293b; padding: 15px; border-radius: 8px; cursor: pointer; text-align: center; border: 1px solid transparent; opacity: 0.5; }
+
+.tech-node.unlocked { opacity: 1; border-color: var(--success); background: #064e3b; }
+
+.tech-node.available { opacity: 1; border-color: var(--accent); }
+
+.tech-node:hover.available { background: #1e3a8a; }
+
+button.btn-nav { background: var(--accent); color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-weight: bold; margin-left:10px; white-space: nowrap;}
+
+button.btn-nav:hover { background: var(--accent-hover); }
+
+/* --- NAVIGATION CONTROLS --- */
+#nav-controls {
+  position: absolute; bottom: 14px; right: 14px; z-index: 50;
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  pointer-events: none;
+}
+#nav-pad {
+  display: grid; grid-template-columns: repeat(3, 30px); grid-template-rows: repeat(3, 30px);
+  gap: 3px; pointer-events: all;
+}
+.nav-btn {
+  background: rgba(15,23,42,0.85); color: #94a3b8; border: 1px solid #1e293b;
+  border-radius: 6px; cursor: pointer; font-size: 11px; display: flex;
+  align-items: center; justify-content: center; transition: 0.15s;
+  user-select: none; -webkit-user-select: none;
+}
+.nav-btn:hover { background: rgba(59,130,246,0.3); color: white; border-color: #3b82f6; }
+.nav-btn:active { transform: scale(0.9); }
+.nav-up    { grid-column: 2; grid-row: 1; }
+.nav-left  { grid-column: 1; grid-row: 2; }
+.nav-center { grid-column: 2; grid-row: 2; font-size: 14px; }
+.nav-right { grid-column: 3; grid-row: 2; }
+.nav-down  { grid-column: 2; grid-row: 3; }
+#zoom-controls {
+  display: flex; align-items: center; gap: 4px; pointer-events: all;
+  background: rgba(15,23,42,0.85); border: 1px solid #1e293b; border-radius: 8px; padding: 4px 8px;
+}
+.zoom-btn {
+  background: none; border: none; color: #94a3b8; cursor: pointer; font-size: 16px;
+  width: 22px; height: 22px; display: flex; align-items: center; justify-content: center;
+  border-radius: 4px; transition: 0.15s; line-height: 1;
+}
+.zoom-btn:hover { color: white; background: rgba(59,130,246,0.3); }
+#zoom-label { font-family: monospace; font-size: 11px; color: #64748b; min-width: 36px; text-align: center; }
+#viewport { position: relative; overflow: hidden; }
+
+/* --- FLOATING BUTTONS --- */
+.float-btn {
+  position: absolute; bottom: 16px; z-index: 100;
+  background: rgba(15,23,42,0.85); color: var(--text-main);
+  border: 1px solid var(--border); border-radius: 30px;
+  padding: 8px 14px; font-size: clamp(11px, 2.5vw, 13px); font-weight: bold;
+  cursor: pointer; display: flex; align-items: center; gap: 6px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+  transition: 0.2s; user-select: none; white-space: nowrap;
+  max-width: calc(50% - 26px);
+}
+.float-btn:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(0,0,0,0.6); }
+#btn-desc { left: 16px; border-color: var(--success); }
+#btn-desc:hover { background: #064e3b; border-color: var(--success); }
+#btn-tuto { right: 16px; border-color: var(--accent); }
+#btn-tuto:hover { background: #1e3a8a; border-color: var(--accent); }
+@media (max-width: 480px) {
+  .float-btn { padding: 7px 10px; font-size: 11px; gap: 4px; bottom: 10px; }
+  #btn-desc { left: 10px; }
+  #btn-tuto { right: 10px; }
+  .info-box { width: 97%; max-height: 90vh; border-radius: 12px; }
+  .info-header { padding: 12px 14px; }
+  .info-header h2 { font-size: 15px; }
+  .info-body { padding: 12px 14px; font-size: 13px; }
+  .tuto-tab { padding: 8px 10px; font-size: 11px; }
+}
+
+/* --- INFO MODALS --- */
+.info-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 2500; display: none; align-items: center; justify-content: center; backdrop-filter: blur(6px); }
+.info-modal.open { display: flex; }
+.info-box { background: var(--panel-bg); width: 90%; max-width: 680px; max-height: 82vh; border-radius: 16px; border: 1px solid var(--border); box-shadow: 0 0 60px rgba(0,0,0,0.5); display: flex; flex-direction: column; overflow: hidden; }
+.info-header { padding: 16px 22px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; flex-shrink:0; }
+.info-header h2 { margin: 0; font-size: 20px; }
+.info-body { padding: 20px 25px; overflow-y: auto; flex: 1; line-height: 1.7; font-size: 14px; color: var(--text-muted); }
+.info-body h4 { color: var(--text-main); margin: 18px 0 6px; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; }
+.info-body p { margin: 0 0 10px; }
+.tuto-step { display: flex; gap: 14px; align-items: flex-start; margin-bottom: 16px; background: rgba(255,255,255,0.03); border-radius: 10px; padding: 14px; border: 1px solid var(--border); }
+.tuto-num { background: var(--accent); color: white; font-weight: 900; font-size: 16px; width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+/* --- TUTORIAL TABS --- */
+.tuto-tab { background:none; border:none; border-bottom:2px solid transparent; color:#94a3b8; padding:10px 14px; cursor:pointer; font-size:12px; font-weight:600; white-space:nowrap; transition:0.2s; }
+.tuto-tab:hover { color:#e2e8f0; background:rgba(255,255,255,0.04); }
+.tuto-tab.active { color:#00d4ff; border-bottom-color:#00d4ff; background:rgba(0,212,255,0.05); }
+.tuto-tip { display:flex; gap:10px; padding:12px 16px; border-radius:8px; font-size:13px; line-height:1.6; margin-bottom:10px; }
+.tuto-info { background:rgba(0,212,255,0.07); border-left:3px solid #00d4ff; }
+.tuto-warn { background:rgba(245,158,11,0.07); border-left:3px solid #f59e0b; }
+.tuto-danger { background:rgba(239,68,68,0.07); border-left:3px solid #ef4444; }
+.tuto-success { background:rgba(34,197,94,0.07); border-left:3px solid #22c55e; }
+.tuto-brow { display:grid; grid-template-columns:1fr 80px 1fr; gap:8px; align-items:center; padding:8px 12px; background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:6px; font-size:12px; margin-bottom:6px; }
+.tuto-step2 { display:flex; gap:14px; align-items:flex-start; margin-bottom:14px; padding:12px; background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:8px; counter-increment:tpstep; }
+.tuto-num2 { background:rgba(0,212,255,0.15); color:#00d4ff; font-weight:900; font-size:14px; width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; border:1px solid rgba(0,212,255,0.4); }
+.tuto-num2::before { content:counter(tpstep); }
+.tuto-icard { background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:8px; padding:14px; margin-bottom:10px; }
+.tuto-icard-title { font-size:14px; font-weight:600; color:white; margin-bottom:6px; }
+.tuto-ctrl { display:flex; align-items:center; gap:12px; padding:10px 14px; background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:8px; font-size:13px; }
+.tuto-key { display:inline-flex; align-items:center; justify-content:center; min-width:36px; height:34px; padding:0 8px; background:#1e293b; border:1px solid #334155; border-bottom:3px solid #0f172a; border-radius:6px; font-family:monospace; font-size:12px; color:white; font-weight:700; flex-shrink:0; white-space:nowrap; }
+.tuto-text b { display: block; color: var(--text-main); margin-bottom: 4px; }
+.close-info { background: none; border: 1px solid var(--border); color: var(--text-muted); border-radius: 6px; padding: 6px 14px; cursor: pointer; font-size: 13px; }
+.close-info:hover { background: var(--border); color: white; }
+.tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; margin-right: 4px; }
+.tag-green { background: #064e3b; color: var(--success); }
+.tag-blue { background: #1e3a8a; color: #93c5fd; }
+.tag-yellow { background: #451a03; color: var(--warning); }
+.tag-red { background: #450a0a; color: #fca5a5; }
+
+</style>
+
+</head>
+
+<body>
+
+
+
+<div id="launcher">
+
+<div class="launcher-title">OMEGA <span style="color:#3b82f6">CITY 1.21.3</span></div>
+
+<div class="mode-cards">
+
+<div class="mode-card mode-survie" onclick="Game.start('survival')">
+
+<span class="m-icon">📄</span><span class="m-title">NORMAL</span><span class="m-desc">Économie stricte.<br>2000€</span>
+
+</div>
+
+<div class="mode-card mode-hard" onclick="Game.start('hard')">
+
+<div class="badge-hard">DANGER</div>
+
+<span class="m-icon" style="color:#ef4444">🗄️</span><span class="m-title" style="color:#ef4444">DIFFICILE</span><span class="m-desc">Entretien +50%.<br>500€</span>
+
+</div>
+
+<div class="mode-card mode-creatif" onclick="Game.start('creative')">
+
+<span class="m-icon" style="color:#a78bfa">👾</span></span><span class="m-title" style="color:#a78bfa">CRÉATIF</span><span class="m-desc">Infini.<br>Sandbox</span>
+
+</div>
+
+<button id="btn-desc" class="float-btn" onclick="document.getElementById('modal-desc').classList.add('open')">📖 Description</button>
+<button id="btn-tuto" class="float-btn" onclick="document.getElementById('modal-tuto').classList.add('open')">🎓 Tutoriel</button>
+
+</div>
+
+</div>
+
+<div id="top-bar">
+
+<div class="brand">OMEGA <span id="mode-label" style="font-size:12px; background:#333; padding:2px 6px; border-radius:4px; vertical-align:middle; color:white">...</span></div>
+
+<div class="res-strip">
+
+<div class="res-item"><span style="color:#ffd700">💰</span><b id="ui-money">0</b></div>
+
+<div class="res-item"><span style="color:#38bdf8">👥</span><b id="ui-pop">0</b></div>
+
+<div class="res-item"><span style="color:#f472b6">⚡</span><b id="ui-energy">0</b></div>
+
+<div class="res-item"><span style="color:#a78bfa">🧪</span><b id="ui-science">0</b></div>
+
+</div>
+
+<div style="display:flex;">
+
+<button class="btn-nav" id="btn-tech" onclick="UI.openTechTree()">🔬</button>
+
+<button class="btn-nav" onclick="location.reload()" style="background:#dc2626">🏠</button>
+
+</div>
+
+</div>
+
+
+
+<div id="left-panel">
+
+<div id="clicker-area">
+
+<button id="btn-clicker" onclick="Game.clickAction(event)">...</button>
+
+<span id="click-val" style="font-size:11px; margin-top:5px; display:block; color:#fbbf24"></span>
+
+</div>
+
+<div class="tabs"><div class="tab active" onclick="UI.setTab('build')">BATIMENTS</div></div>
+
+<div id="build-menu"></div>
+
+</div>
+
+
+
+<div id="resizer-left" class="resizer"></div>
+
+
+
+<div id="viewport">
+
+<canvas id="gameCanvas"></canvas>
+
+<div id="hover-tooltip"></div>
+
+<!-- CONTRÔLES NAVIGATION -->
+<div id="nav-controls">
+  <div id="nav-pad">
+    <button class="nav-btn nav-up"    onclick="panDir(0,-1)"  title="Haut (W/↑)">▲</button>
+    <button class="nav-btn nav-left"  onclick="panDir(-1,0)"  title="Gauche (A/←)">◀</button>
+    <button class="nav-btn nav-center" onclick="Grid.centerCamera()" title="Recentrer (C)">⊕</button>
+    <button class="nav-btn nav-right" onclick="panDir(1,0)"   title="Droite (D/→)">▶</button>
+    <button class="nav-btn nav-down"  onclick="panDir(0,1)"   title="Bas (S/↓)">▼</button>
+  </div>
+  <div id="zoom-controls">
+    <button class="zoom-btn" onclick="Grid.setZoom((State.camera.zoom||1)*1.2)" title="Zoom + (molette haut)">＋</button>
+    <span id="zoom-label">100%</span>
+    <button class="zoom-btn" onclick="Grid.setZoom((State.camera.zoom||1)*0.83)" title="Zoom − (molette bas)">－</button>
+  </div>
+</div>
+
+</div>
+
+
+
+<div id="resizer-right" class="resizer"></div>
+
+
+
+<div id="log-panel"></div>
+
+
+
+<div id="right-panel">
+
+<div class="panel-section">
+
+<h3>Finances</h3>
+
+<div class="stat-row"><span>Taxes :</span><span id="ui-tax" class="tax-stat">+0€/s</span></div>
+
+<div class="stat-row"><span>Export Élec. :</span><span id="ui-export" class="export-stat">+0€/s</span></div>
+
+<div class="stat-row"><span>Entretien :</span><span id="ui-upkeep" style="color:#ef4444">-0€/s</span></div>
+
+<hr style="border:0; border-bottom:1px solid #334155; margin:5px 0">
+
+<div class="stat-row"><span>Total :</span><span id="ui-income" class="income-stat" style="font-size:16px">+0€/s</span></div>
+
+</div>
+
+<div class="panel-section">
+
+<h3>Indicateurs</h3>
+
+<div class="stat-row"><span>Satisfaction</span><span id="ui-happy">100%</span></div>
+
+<div class="p-bar-bg"><div id="bar-happy" class="p-bar-fill" style="width:100%"></div></div>
+
+
+
+<div class="stat-row" style="margin-top:10px"><span>Emplois / Pop.</span><span id="ui-jobs">0 / 0</span></div>
+
+<div class="p-bar-bg"><div id="bar-jobs" class="p-bar-fill" style="width:0%; background:#facc15"></div></div>
+
+
+
+<div class="stat-row" style="margin-top:10px"><span>Pollution</span><span id="ui-pol">0</span></div>
+
+<div class="p-bar-bg"><div id="bar-pol" class="p-bar-fill" style="width:0%; background:#7f1d1d"></div></div>
+
+</div>
+
+</div>
+
+
+
+<!-- MODAL DESCRIPTION -->
+<div class="info-modal" id="modal-desc">
+  <div class="info-box" style="max-width:750px;">
+    <div class="info-header">
+      <h2>🏙️ OMEGA CITY <span style="color:var(--accent)">1.21.3</span></h2>
+      <button class="close-info" onclick="document.getElementById('modal-desc').classList.remove('open')">✕ Fermer</button>
+    </div>
+    <div class="info-body">
+
+      <p>Un jeu de construction de ville <b>(city-builder)</b> jouable entièrement dans le navigateur, sans installation ni dépendance externe. Un seul fichier HTML suffit.</p>
+
+      <h4>🎮 Modes de jeu</h4>
+      <table style="width:100%;border-collapse:collapse;font-size:13px;margin-bottom:10px;">
+        <thead><tr style="border-bottom:1px solid #334155;color:#94a3b8;text-align:left;">
+          <th style="padding:6px 10px;">Mode</th><th style="padding:6px 10px;">Argent de départ</th><th style="padding:6px 10px;">Particularité</th>
+        </tr></thead>
+        <tbody>
+          <tr style="border-bottom:1px solid #1e293b;">
+            <td style="padding:8px 10px;"><span class="tag tag-green">NORMAL</span></td>
+            <td style="padding:8px 10px;">2 000 €</td>
+            <td style="padding:8px 10px;">Économie stricte, arbre technologique actif. Mode équilibré pour débutants.</td>
+          </tr>
+          <tr style="border-bottom:1px solid #1e293b;">
+            <td style="padding:8px 10px;"><span class="tag tag-red">DIFFICILE</span></td>
+            <td style="padding:8px 10px;">500 €</td>
+            <td style="padding:8px 10px;">Entretien +50 %, exports −50 %, taxes −20 %, clics −50 %. Pour les experts.</td>
+          </tr>
+          <tr>
+            <td style="padding:8px 10px;"><span class="tag tag-blue">CRÉATIF</span></td>
+            <td style="padding:8px 10px;">Infini</td>
+            <td style="padding:8px 10px;">Sandbox libre, toutes les technologies débloquées, pas de coûts.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h4>💰 Économie</h4>
+      <p>Revenu net = <b>Taxes des bâtiments</b> + <b>Export d'énergie</b> − <b>Entretien</b></p>
+      <p>• <b>Export d'énergie</b> : chaque unité excédentaire rapporte 3 €/s (désactivé en mode Créatif).<br>
+         • <b>Entretien</b> : chaque bâtiment a un coût fixe par seconde.<br>
+         • <b>Bouton cliqueur</b> : génère un revenu immédiat basé sur <code style="background:#1e293b;padding:1px 5px;border-radius:3px;">50 + (pop × 2) + (science × 1)</code>.</p>
+
+      <h4>⚡ Énergie & Réseau</h4>
+      <p>L'électricité se propage par <b>algorithme BFS</b> depuis les centrales. Un bâtiment sans courant est <b>inactif</b> (bordure rouge). Un bâtiment sans main-d'œuvre est inactif (bordure orange).</p>
+
+      <h4>🏗️ Bâtiments — Production d'énergie</h4>
+      <table style="width:100%;border-collapse:collapse;font-size:12px;margin-bottom:10px;">
+        <thead><tr style="border-bottom:1px solid #334155;color:#94a3b8;">
+          <th style="padding:5px 8px;text-align:left;">Nom</th><th style="padding:5px 8px;">Coût</th><th style="padding:5px 8px;">Production</th><th style="padding:5px 8px;text-align:left;">Tech requise</th>
+        </tr></thead>
+        <tbody style="text-align:center;">
+          <tr style="border-bottom:1px solid #1e293b;"><td style="text-align:left;padding:5px 8px;">🔥 Centrale Charbon</td><td>1 000 €</td><td>80</td><td style="text-align:left;">—</td></tr>
+          <tr style="border-bottom:1px solid #1e293b;"><td style="text-align:left;padding:5px 8px;">🌀 Éolienne</td><td>1 500 €</td><td>700</td><td style="text-align:left;">Écologie</td></tr>
+          <tr style="border-bottom:1px solid #1e293b;"><td style="text-align:left;padding:5px 8px;">☀️ Solaire</td><td>3 500 €</td><td>300</td><td style="text-align:left;">Écologie</td></tr>
+          <tr style="border-bottom:1px solid #1e293b;"><td style="text-align:left;padding:5px 8px;">💦 Turbine à vagues</td><td>3 000 €</td><td>550</td><td style="text-align:left;">Océan</td></tr>
+          <tr style="border-bottom:1px solid #1e293b;"><td style="text-align:left;padding:5px 8px;">☢️ Nucléaire</td><td>10 000 €</td><td>500</td><td style="text-align:left;">Usinage</td></tr>
+          <tr><td style="text-align:left;padding:5px 8px;">⚛️ Accélérateur de particules</td><td>1 000 000 000 €</td><td>1 000 000</td><td style="text-align:left;">Militaire Avancé</td></tr>
+        </tbody>
+      </table>
+
+      <h4>📊 Indicateurs surveillés</h4>
+      <table style="width:100%;border-collapse:collapse;font-size:12px;margin-bottom:10px;">
+        <thead><tr style="border-bottom:1px solid #334155;color:#94a3b8;text-align:left;">
+          <th style="padding:5px 8px;">Indicateur</th><th style="padding:5px 8px;">Impact négatif si…</th>
+        </tr></thead>
+        <tbody>
+          <tr style="border-bottom:1px solid #1e293b;"><td style="padding:5px 8px;"><b>Satisfaction</b></td><td style="padding:5px 8px;">&lt; 40 % — chute si pollution élevée ou chômage &gt; 70 %</td></tr>
+          <tr style="border-bottom:1px solid #1e293b;"><td style="padding:5px 8px;"><b>Emplois</b></td><td style="padding:5px 8px;">&lt; 30 % de la population → −15 de satisfaction</td></tr>
+          <tr style="border-bottom:1px solid #1e293b;"><td style="padding:5px 8px;"><b>Pollution</b></td><td style="padding:5px 8px;">Chaque unité retire 2 points de satisfaction</td></tr>
+          <tr style="border-bottom:1px solid #1e293b;"><td style="padding:5px 8px;"><b>Énergie</b></td><td style="padding:5px 8px;">Bâtiment sans courant = inactif (bordure rouge)</td></tr>
+          <tr><td style="padding:5px 8px;"><b>Travailleurs</b></td><td style="padding:5px 8px;">Bâtiment sans main-d'œuvre = inactif (bordure orange)</td></tr>
+        </tbody>
+      </table>
+
+      <h4>⚙️ Architecture technique</h4>
+      <p>Jeu entièrement contenu dans <b>un seul fichier HTML</b> (~1 300 lignes). Grille de <b>60 × 60 tuiles</b> (32 px chacune). Propagation électrique par <b>BFS</b>.</p>
+
+      <h4>📝 Notes de version 1.21.3</h4>
+      <p>• la grille est maintenant bougeable sur tout les apareils.<br>
+         • le probleme avec le launcher sur tel est fixé.<br>
+         • ajout de discription et de tutoriel dans le launcher.<br>
+         • zoom et dezoom ajouté.<br>
+       
+        
+
+      <h4>👥 Licence</h4>
+      <p>Projet 1 développeur — fichier HTML autoportant, aucune dépendance.<br>
+         Développeur en chef : <b>xxtag01</b> · Développeur en second : <b>XXDad01</b></p>
+
+    </div>
+  </div>
+</div>
+
+<!-- MODAL TUTORIEL -->
+<div class="info-modal" id="modal-tuto">
+  <div class="info-box" style="max-width:820px;">
+    <div class="info-header">
+      <h2>🎓 Tutoriel complet <span style="color:var(--accent);font-size:14px;font-weight:normal;">v1.21.3</span></h2>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+        <span id="tuto-section-label" style="font-family:monospace;font-size:11px;color:#64748b;letter-spacing:2px;">01 / L'INTERFACE</span>
+        <button class="close-info" onclick="document.getElementById('modal-tuto').classList.remove('open')">✕ Fermer</button>
+      </div>
+    </div>
+
+    <!-- NAV TABS -->
+    <div style="display:flex;overflow-x:auto;border-bottom:1px solid var(--border);background:rgba(0,0,0,0.2);flex-shrink:0;">
+      <button class="tuto-tab active" onclick="tutoNav(0)" data-label="01 / L'INTERFACE">🖥️ Interface</button>
+      <button class="tuto-tab" onclick="tutoNav(1)" data-label="02 / MODES DE JEU">🎮 Modes</button>
+      <button class="tuto-tab" onclick="tutoNav(2)" data-label="03 / PREMIERS PAS">🚀 Débuter</button>
+      <button class="tuto-tab" onclick="tutoNav(3)" data-label="04 / BÂTIMENTS">🏗️ Bâtiments</button>
+      <button class="tuto-tab" onclick="tutoNav(4)" data-label="05 / FINANCES">💰 Finances</button>
+      <button class="tuto-tab" onclick="tutoNav(5)" data-label="06 / TECHNOLOGIE">🔬 Techno</button>
+      <button class="tuto-tab" onclick="tutoNav(6)" data-label="07 / ÉNERGIE">⚡ Énergie</button>
+      <button class="tuto-tab" onclick="tutoNav(7)" data-label="08 / INDICATEURS">📊 Indicateurs</button>
+      <button class="tuto-tab" onclick="tutoNav(8)" data-label="09 / STRATÉGIES">♟️ Stratégies</button>
+      <button class="tuto-tab" onclick="tutoNav(9)" data-label="10 / CONTRÔLES">🕹️ Contrôles</button>
+    </div>
+
+    <div class="info-body" style="padding:20px 22px;">
+
+      <!-- PAGE 0 : INTERFACE -->
+      <div class="tuto-page" id="tp-0">
+        <h4>🔝 Barre du haut</h4>
+        <p>Affiche en permanence : <b>💰 Argent</b>, <b>👥 Population</b>, <b>⚡ Énergie</b> (surplus/déficit), <b>🧪 Science</b>. Le bouton <b>🔬</b> ouvre l'arbre technologique. Le bouton <b>🏠</b> relance une nouvelle partie.</p>
+        <h4 style="margin-top:14px;">◀ Panneau gauche</h4>
+        <p>Contient le <b>bouton d'action</b> (gagner de l'argent manuellement) et la <b>liste des bâtiments</b> à construire. Cliquez un bâtiment pour le sélectionner, puis cliquez sur la carte pour le poser.</p>
+        <h4 style="margin-top:14px;">🗺️ Zone centrale — La carte</h4>
+        <p>Grille de <b>60×60 tuiles</b>. Clic gauche = poser un bâtiment. Clic droit maintenu + glisser = déplacer la vue. Survol = infos et état du bâtiment. Les panneaux sont <b>redimensionnables</b> avec les séparateurs <code style="background:#1e293b;padding:1px 4px;border-radius:3px;">⋮</code>.</p>
+        <h4 style="margin-top:14px;">▶ Panneau droit</h4>
+        <p><b>Finances</b> : taxes, export électricité, entretien, total. <b>Indicateurs</b> : satisfaction, emploi, pollution — affichés en barres colorées.</p>
+        <h4 style="margin-top:14px;">📋 Journal en bas</h4>
+        <p>Messages en temps réel : constructions, erreurs, alertes, technologies débloquées. Les entrées récentes apparaissent en haut.</p>
+      </div>
+
+      <!-- PAGE 1 : MODES -->
+      <div class="tuto-page" id="tp-1" style="display:none;">
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:16px;">
+          <div style="padding:18px;border-radius:10px;border:2px solid #22c55e;background:rgba(34,197,94,0.05);text-align:center;">
+            <div style="font-size:32px;margin-bottom:8px;">📄</div>
+            <div style="font-family:monospace;font-size:13px;font-weight:700;color:#22c55e;letter-spacing:2px;margin-bottom:6px;">NORMAL</div>
+            <div style="font-size:12px;color:#94a3b8;margin-bottom:4px;">💰 2 000 € de départ</div>
+            <div style="font-size:12px;color:#64748b;">Économie équilibrée. Idéal pour apprendre.</div>
+          </div>
+          <div style="padding:18px;border-radius:10px;border:2px solid #ef4444;background:rgba(239,68,68,0.05);text-align:center;">
+            <div style="font-size:32px;margin-bottom:8px;">💀</div>
+            <div style="font-family:monospace;font-size:13px;font-weight:700;color:#ef4444;letter-spacing:2px;margin-bottom:6px;">DIFFICILE</div>
+            <div style="font-size:12px;color:#94a3b8;margin-bottom:4px;">💰 500 € de départ</div>
+            <div style="font-size:12px;color:#64748b;">Entretien +50%, revenus réduits. Pour experts.</div>
+          </div>
+          <div style="padding:18px;border-radius:10px;border:2px solid #7c3aed;background:rgba(124,58,237,0.05);text-align:center;">
+            <div style="font-size:32px;margin-bottom:8px;">✨</div>
+            <div style="font-family:monospace;font-size:13px;font-weight:700;color:#a78bfa;letter-spacing:2px;margin-bottom:6px;">CRÉATIF</div>
+            <div style="font-size:12px;color:#94a3b8;margin-bottom:4px;">💰 Argent infini</div>
+            <div style="font-size:12px;color:#64748b;">Toutes les techs débloquées. Sandbox pur.</div>
+          </div>
+        </div>
+        <div class="tuto-tip tuto-warn">⚠️ <b>Mode Difficile :</b> les coûts de construction sont multipliés par 1,5 et les exports d'électricité ne rapportent que la moitié. Maîtrisez bien les finances avant de tenter ce mode.</div>
+      </div>
+
+      <!-- PAGE 2 : PREMIERS PAS -->
+      <div class="tuto-page" id="tp-2" style="display:none;">
+        <div style="counter-reset:tpstep;">
+          <div class="tuto-step2"><div class="tuto-num2"></div><div><b>Cliquez pour gagner de l'argent</b><br><span style="color:#94a3b8;">Au début, cliquez le bouton <b>💸 TRAVAIL</b>. Chaque clic rapporte <code style="background:#1e293b;padding:1px 4px;border-radius:3px;">50 € + 2€/habitant + 1€/science</code>. C'est votre seul revenu au départ.</span></div></div>
+          <div class="tuto-step2"><div class="tuto-num2"></div><div><b>Posez une centrale à charbon 🔥</b><br><span style="color:#94a3b8;">Sans électricité, les bâtiments ne fonctionnent pas. La <b>Centrale Charbon</b> (1 000 €) produit 80 ⚡. Priorité absolue.</span></div></div>
+          <div class="tuto-step2"><div class="tuto-num2"></div><div><b>Construisez des habitations 🏠</b><br><span style="color:#94a3b8;">Des <b>Cabanes</b> (200 €, +6 hab, +900 €/s de taxes) proches de la centrale. Les habitations alimentées génèrent des taxes automatiquement.</span></div></div>
+          <div class="tuto-step2"><div class="tuto-num2"></div><div><b>Ajoutez des emplois 💼</b><br><span style="color:#94a3b8;">Population sans emploi = satisfaction en chute. Posez des <b>Commerces</b> ou <b>Usines</b> pour maintenir le bonheur au-dessus de 50%.</span></div></div>
+          <div class="tuto-step2"><div class="tuto-num2"></div><div><b>Routes avec modération 🛣️</b><br><span style="color:#94a3b8;">Les Routes (50 €) coûtent 12 €/s d'entretien chacune. Restez raisonnable — elles n'affectent pas la connexion électrique.</span></div></div>
+          <div class="tuto-step2"><div class="tuto-num2"></div><div><b>Générez de la science 🧪</b><br><span style="color:#94a3b8;">Construisez une <b>École</b> ou un <b>Centre de Recherche</b>. Cliquez sur <b>🔬</b> en haut pour débloquer des technologies et nouveaux bâtiments.</span></div></div>
+        </div>
+      </div>
+
+      <!-- PAGE 3 : BÂTIMENTS -->
+      <div class="tuto-page" id="tp-3" style="display:none;">
+        <h4 style="margin-bottom:8px;">🏠 Habitations</h4>
+        <div class="tuto-brow"><span>🏠 Cabane</span><span style="color:#ffd700;">200€</span><span style="color:#94a3b8;">+6 hab · +900€/s taxes</span></div>
+        <div class="tuto-brow"><span>🏡 Pavillon</span><span style="color:#ffd700;">500€</span><span style="color:#94a3b8;">+16 hab · +1 200€/s taxes</span></div>
+        <div class="tuto-brow"><span>🏢 Immeuble</span><span style="color:#ffd700;">1 200€</span><span style="color:#94a3b8;">+215 hab · +3 500€/s taxes · tech Urbanisme</span></div>
+
+        <h4 style="margin-top:14px;margin-bottom:8px;">⚡ Énergie</h4>
+        <div class="tuto-brow"><span>🔥 Centrale Charbon</span><span style="color:#ffd700;">1 000€</span><span style="color:#94a3b8;">+80 ⚡ · −535€/s · Pollution +25</span></div>
+        <div class="tuto-brow"><span>🌀 Éolienne</span><span style="color:#ffd700;">1 500€</span><span style="color:#94a3b8;">+700 ⚡ · −15€/s · tech Écologie</span></div>
+        <div class="tuto-brow"><span>☀️ Solaire</span><span style="color:#ffd700;">3 500€</span><span style="color:#94a3b8;">+300 ⚡ · −30€/s · tech Écologie</span></div>
+        <div class="tuto-brow"><span>💦 Turbine vagues</span><span style="color:#ffd700;">3 000€</span><span style="color:#94a3b8;">+550 ⚡ · −60€/s · tech Océan</span></div>
+        <div class="tuto-brow"><span>☢️ Nucléaire</span><span style="color:#ffd700;">10 000€</span><span style="color:#94a3b8;">+500 ⚡ · −250€/s · tech Usinage</span></div>
+
+        <h4 style="margin-top:14px;margin-bottom:8px;">🏦 Banques (revenus massifs)</h4>
+        <div class="tuto-brow"><span>🏧 Petite banque</span><span style="color:#ffd700;">10 000€</span><span style="color:#94a3b8;">+100 000€/s · tech Urbanisme</span></div>
+        <div class="tuto-brow"><span>💳 Banque</span><span style="color:#ffd700;">100 000€</span><span style="color:#94a3b8;">+1 000 000€/s · tech Urbanisme</span></div>
+
+        <h4 style="margin-top:14px;margin-bottom:8px;">🌿 Services & Nature</h4>
+        <div class="tuto-brow"><span>🏫 École</span><span style="color:#ffd700;">4 000€</span><span style="color:#94a3b8;">+3 Science/s · −120€/s</span></div>
+        <div class="tuto-brow"><span>🌳 Parc</span><span style="color:#ffd700;">1 000€</span><span style="color:#94a3b8;">😊 +5 bonheur · −20€/s</span></div>
+        <div class="tuto-brow"><span>⚽ Stade</span><span style="color:#ffd700;">8 000€</span><span style="color:#94a3b8;">😊 +50 bonheur · 27 emplois</span></div>
+        <div class="tuto-brow"><span>♻️ Recyclage</span><span style="color:#ffd700;">3 000€</span><span style="color:#94a3b8;">Pollution −10 · tech Écologie</span></div>
+        <div class="tuto-tip tuto-info" style="margin-top:12px;">💡 L'électricité se propage case par case depuis les centrales. Placez-les au centre de vos quartiers pour une meilleure couverture.</div>
+      </div>
+
+      <!-- PAGE 4 : FINANCES -->
+      <div class="tuto-page" id="tp-4" style="display:none;">
+        <div class="tuto-tip tuto-success" style="margin-bottom:14px;">📐 <b>Formule :</b> Revenu net = Taxes + Export électricité − Entretien</div>
+        <div style="background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:14px;">
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;padding:10px 16px;border-bottom:1px solid var(--border);font-family:monospace;font-size:11px;color:#64748b;letter-spacing:2px;text-transform:uppercase;">
+            <span>Source</span><span>Impact</span><span>Note</span>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;padding:10px 16px;border-bottom:1px solid rgba(30,41,59,0.8);font-size:13px;"><span>💰 Taxes</span><span style="color:#22c55e;">Positif</span><span style="color:#64748b;font-size:12px;">Habitations et banques</span></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;padding:10px 16px;border-bottom:1px solid rgba(30,41,59,0.8);font-size:13px;"><span>⚡ Export élec.</span><span style="color:#22c55e;">+3€/surplus</span><span style="color:#64748b;font-size:12px;">Si surplus &gt; 0, mode non-créatif</span></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;padding:10px 16px;border-bottom:1px solid rgba(30,41,59,0.8);font-size:13px;"><span>🔧 Entretien</span><span style="color:#ef4444;">Négatif</span><span style="color:#64748b;font-size:12px;">Coût fixe par bâtiment/s</span></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;padding:10px 16px;font-size:13px;"><span>👆 Clics</span><span style="color:#22c55e;">+50€ min</span><span style="color:#64748b;font-size:12px;">+2€/hab +1€/science</span></div>
+        </div>
+        <h4 style="margin-bottom:8px;">⚠️ Déficit et dettes</h4>
+        <p style="font-size:13px;color:#94a3b8;line-height:1.7;">Si votre argent descend sous <b>−500 €</b>, une alerte apparaît toutes les 5 secondes. Un déficit prolongé est fatal — vous ne pouvez plus construire. <b>Remède rapide :</b> cliquez frénétiquement + démolissez les bâtiments les plus coûteux (usines, centrale à charbon).</p>
+        <div class="tuto-tip tuto-warn" style="margin-top:12px;">🏭 <b>Mode Difficile :</b> entretien ×1,5, exports −50%, taxes −20%. Construisez des banques le plus vite possible.</div>
+      </div>
+
+      <!-- PAGE 5 : TECHNOLOGIE -->
+      <div class="tuto-page" id="tp-5" style="display:none;">
+        <p style="font-size:13px;color:#94a3b8;line-height:1.7;margin-bottom:14px;">Cliquez sur <b>🔬</b> en haut pour ouvrir l'arbre. Chaque technologie coûte des <b>points de science 🧪</b>. La technologie parente doit être débloquée en premier. En mode Créatif, tout est accessible d'emblée.</p>
+        <div style="background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:10px;padding:16px;font-size:12px;line-height:2;">
+          <div style="margin-bottom:6px;"><span style="border:1px solid #22c55e;color:#22c55e;padding:4px 10px;border-radius:6px;background:rgba(34,197,94,0.08);">✅ Départ (0 Sc)</span></div>
+          <div style="margin-left:20px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:4px;">
+            <span style="color:#64748b;">├─</span>
+            <span style="border:1px solid #00d4ff;color:#00d4ff;padding:4px 10px;border-radius:6px;background:rgba(0,212,255,0.08);">🌿 Nature (25 Sc)</span>
+            <span style="color:#64748b;">→</span>
+            <span style="border:1px solid #334155;color:#64748b;padding:4px 10px;border-radius:6px;opacity:0.6;">🌱 Écologie (200 Sc)</span>
+            <span style="color:#64748b;">→</span>
+            <span style="border:1px solid #334155;color:#64748b;padding:4px 10px;border-radius:6px;opacity:0.6;">⚛️ Physique (600 Sc)</span>
+          </div>
+          <div style="margin-left:20px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:4px;">
+            <span style="color:#64748b;">└─</span>
+            <span style="border:1px solid #00d4ff;color:#00d4ff;padding:4px 10px;border-radius:6px;background:rgba(0,212,255,0.08);">🏙️ Urbanisme (100 Sc)</span>
+            <span style="color:#64748b;">→</span>
+            <span style="border:1px solid #334155;color:#64748b;padding:4px 10px;border-radius:6px;opacity:0.6;">🎭 Culture (125 Sc)</span>
+            <span style="color:#64748b;">→</span>
+            <span style="border:1px solid #334155;color:#64748b;padding:4px 10px;border-radius:6px;opacity:0.6;">🔒 Sécurité (300 Sc)</span>
+          </div>
+          <div style="margin-left:60px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:4px;">
+            <span style="color:#64748b;">→</span>
+            <span style="border:1px solid #334155;color:#64748b;padding:4px 10px;border-radius:6px;opacity:0.6;">🪖 Militaire (1 000 Sc)</span>
+            <span style="color:#64748b;">→</span>
+            <span style="border:1px solid #334155;color:#64748b;padding:4px 10px;border-radius:6px;opacity:0.6;">🚀 Militaire avancé (5 000 Sc)</span>
+          </div>
+          <div style="margin-left:60px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;">
+            <span style="color:#64748b;">→</span>
+            <span style="border:1px solid #334155;color:#64748b;padding:4px 10px;border-radius:6px;opacity:0.6;">⚙️ Usinage (2 500 Sc)</span>
+            <span style="color:#64748b;">→</span>
+            <span style="border:1px solid #334155;color:#64748b;padding:4px 10px;border-radius:6px;opacity:0.6;">🎮 Gaming (50 Sc)</span>
+            <span style="color:#64748b;">→</span>
+            <span style="border:1px solid #334155;color:#64748b;padding:4px 10px;border-radius:6px;opacity:0.6;">🍔 Restauration (1 000 Sc)</span>
+          </div>
+        </div>
+        <div class="tuto-tip tuto-info" style="margin-top:12px;">🎯 <b>Priorité :</b> Débloquez <b>Urbanisme</b> en premier (100 Sc) → Immeubles et Banques. Ensuite <b>Écologie</b> (200 Sc) → Éoliennes (+700 ⚡, presque sans entretien).</div>
+      </div>
+
+      <!-- PAGE 6 : ÉNERGIE -->
+      <div class="tuto-page" id="tp-6" style="display:none;">
+        <p style="font-size:13px;color:#94a3b8;line-height:1.7;margin-bottom:14px;">L'électricité se propage par <b>BFS (case par case)</b> depuis chaque centrale. Un bâtiment est alimenté si une centrale est accessible via des tuiles adjacentes occupées. Les cases vides interrompent la propagation.</p>
+        <div style="background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:14px;">
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;padding:10px 16px;border-bottom:1px solid var(--border);font-family:monospace;font-size:11px;color:#64748b;letter-spacing:2px;text-transform:uppercase;">
+            <span>Source</span><span>Production</span><span>Entretien</span>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;padding:9px 16px;border-bottom:1px solid rgba(30,41,59,0.8);font-size:13px;"><span>🔥 Charbon</span><span style="color:#22c55e;font-family:monospace;">+80 ⚡</span><span style="color:#ef4444;font-family:monospace;">−535€/s</span></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;padding:9px 16px;border-bottom:1px solid rgba(30,41,59,0.8);font-size:13px;"><span>🌀 Éolienne</span><span style="color:#22c55e;font-family:monospace;">+700 ⚡</span><span style="color:#ef4444;font-family:monospace;">−15€/s</span></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;padding:9px 16px;border-bottom:1px solid rgba(30,41,59,0.8);font-size:13px;"><span>☀️ Solaire</span><span style="color:#22c55e;font-family:monospace;">+300 ⚡</span><span style="color:#ef4444;font-family:monospace;">−30€/s</span></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;padding:9px 16px;border-bottom:1px solid rgba(30,41,59,0.8);font-size:13px;"><span>💦 Turbine vagues</span><span style="color:#22c55e;font-family:monospace;">+550 ⚡</span><span style="color:#ef4444;font-family:monospace;">−60€/s</span></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;padding:9px 16px;border-bottom:1px solid rgba(30,41,59,0.8);font-size:13px;"><span>☢️ Nucléaire</span><span style="color:#22c55e;font-family:monospace;">+500 ⚡</span><span style="color:#ef4444;font-family:monospace;">−250€/s</span></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;padding:9px 16px;font-size:13px;"><span>⚛️ Accélérateur</span><span style="color:#22c55e;font-family:monospace;">+1 000 000 ⚡</span><span style="color:#ef4444;font-family:monospace;">−9 000€/s</span></div>
+        </div>
+        <div class="tuto-tip tuto-success">💡 <b>Export d'électricité :</b> chaque unité de surplus rapporte 3 €/s. Une éolienne (700 ⚡ − consommation de la ville) peut générer des centaines d'euros par seconde de revenus passifs.</div>
+        <div class="tuto-tip tuto-danger" style="margin-top:10px;">🔴 <b>Évitez le charbon à long terme !</b> 80 ⚡ pour 535 €/s d'entretien + pollution +25. Passez aux éoliennes dès que possible.</div>
+      </div>
+
+      <!-- PAGE 7 : INDICATEURS -->
+      <div class="tuto-page" id="tp-7" style="display:none;">
+        <div class="tuto-icard"><div class="tuto-icard-title">😊 Satisfaction (Bonheur)</div><p style="font-size:13px;color:#94a3b8;line-height:1.7;">Commence à 100%. <b>Baisse</b> avec la pollution (−2% par unité) et le chômage (&lt;30% emplois : −15%). <b>Monte</b> avec Parcs (+5), Stades (+50), Police (+10). Visez minimum 50%.</p></div>
+        <div class="tuto-icard"><div class="tuto-icard-title">🏭 Pollution</div><p style="font-size:13px;color:#94a3b8;line-height:1.7;">Centrales charbon (+25), usines (+5). Réduite par : Recyclage (−10), Étang (−10), Mer (−30), Forêt (−15). La pollution diminue directement la satisfaction.</p></div>
+        <div class="tuto-icard"><div class="tuto-icard-title">👷 Emploi</div><p style="font-size:13px;color:#94a3b8;line-height:1.7;">Si moins de 30% de la population a un emploi, le bonheur chute de 15 points. Certains bâtiments requièrent des travailleurs — sans eux, ils sont marqués "Manque de travailleurs" et ne produisent rien.</p></div>
+        <div class="tuto-tip tuto-info" style="margin-top:4px;">⚖️ <b>Équilibre idéal :</b> pour chaque immeuble (215 hab), prévoyez ~3 Bureaux (90 emplois) + 1 Commerce (8 emplois) + 1 Parc + 1 École.</div>
+      </div>
+
+      <!-- PAGE 8 : STRATÉGIES -->
+      <div class="tuto-page" id="tp-8" style="display:none;">
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;">
+          <div style="padding:16px;border-radius:10px;border:1px solid var(--border);background:rgba(255,255,255,0.02);border-left:3px solid #22c55e;">
+            <div style="font-family:monospace;font-size:11px;letter-spacing:2px;color:white;margin-bottom:10px;">🏙️ DÉMARRAGE OPTIMAL</div>
+            <ol style="padding-left:16px;font-size:12px;color:#94a3b8;line-height:2.2;">
+              <li>Cliquez ×30 → ~1 500 €</li>
+              <li><b style="color:#e2e8f0;">Centrale charbon</b> (1 000 €)</li>
+              <li>3× <b style="color:#e2e8f0;">Cabanes</b> (600 €)</li>
+              <li>1× <b style="color:#e2e8f0;">Commerce</b> (600 €)</li>
+              <li>Cliquez → 4 000 € → <b style="color:#e2e8f0;">École</b></li>
+              <li>100 Sc → <b style="color:#e2e8f0;">Urbanisme</b></li>
+              <li>200 Sc → <b style="color:#e2e8f0;">Écologie</b> → Éoliennes</li>
+              <li>Remplacez le charbon</li>
+            </ol>
+          </div>
+          <div style="padding:16px;border-radius:10px;border:1px solid var(--border);background:rgba(255,255,255,0.02);border-left:3px solid #00d4ff;">
+            <div style="font-family:monospace;font-size:11px;letter-spacing:2px;color:white;margin-bottom:10px;">🌍 STRATÉGIE ÉCO</div>
+            <ol style="padding-left:16px;font-size:12px;color:#94a3b8;line-height:2.2;">
+              <li>Démarrage Normal standard</li>
+              <li>Rush <b style="color:#e2e8f0;">Écologie</b> (200 Sc)</li>
+              <li>5+ <b style="color:#e2e8f0;">Éoliennes</b> → gros surplus</li>
+              <li>Export = revenus passifs massifs</li>
+              <li><b style="color:#e2e8f0;">Recyclage</b> → Pollution −10</li>
+              <li>Forêts/Étangs → bonheur haut</li>
+              <li>Croissance stable assurée</li>
+            </ol>
+          </div>
+          <div style="padding:16px;border-radius:10px;border:1px solid var(--border);background:rgba(255,255,255,0.02);border-left:3px solid #ef4444;">
+            <div style="font-family:monospace;font-size:11px;letter-spacing:2px;color:white;margin-bottom:10px;">💀 SURVIE DIFFICILE</div>
+            <ol style="padding-left:16px;font-size:12px;color:#94a3b8;line-height:2.2;">
+              <li>Cliquez frénétiquement (500 €)</li>
+              <li><b style="color:#e2e8f0;">Centrale charbon</b> en priorité</li>
+              <li>2× <b style="color:#e2e8f0;">Cabanes</b> max</li>
+              <li>Pas de routes inutiles (−12€/s)</li>
+              <li>Rush <b style="color:#e2e8f0;">Urbanisme</b> → Banque</li>
+              <li>La Banque (1M€/s) change tout</li>
+              <li>Chaque €/s compte !</li>
+            </ol>
+          </div>
+        </div>
+      </div>
+
+      <!-- PAGE 9 : CONTRÔLES -->
+      <div class="tuto-page" id="tp-9" style="display:none;">
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px;margin-bottom:14px;">
+          <div class="tuto-ctrl"><div class="tuto-key">Clic G</div><div><b>Poser un bâtiment</b><br><span style="font-size:12px;color:#64748b;">Sur la case sélectionnée</span></div></div>
+          <div class="tuto-ctrl"><div class="tuto-key">Clic D</div><div><b>Déplacer la vue</b><br><span style="font-size:12px;color:#64748b;">Maintenir + glisser</span></div></div>
+          <div class="tuto-ctrl"><div class="tuto-key">Survol</div><div><b>Infos bâtiment</b><br><span style="font-size:12px;color:#64748b;">Tooltip avec état</span></div></div>
+          <div class="tuto-ctrl"><div class="tuto-key">🔬</div><div><b>Arbre tech</b><br><span style="font-size:12px;color:#64748b;">Bouton en haut à droite</span></div></div>
+          <div class="tuto-ctrl"><div class="tuto-key">🏠</div><div><b>Retour menu</b><br><span style="font-size:12px;color:#64748b;">Redémarre le jeu</span></div></div>
+          <div class="tuto-ctrl"><div class="tuto-key">⋮</div><div><b>Redimensionner</b><br><span style="font-size:12px;color:#64748b;">Glisser les séparateurs</span></div></div>
+          <div class="tuto-ctrl"><div class="tuto-key">👆 Btn</div><div><b>Clic action</b><br><span style="font-size:12px;color:#64748b;">Gagne de l'argent</span></div></div>
+          <div class="tuto-ctrl"><div class="tuto-key">Touch</div><div><b>Mobile</b><br><span style="font-size:12px;color:#64748b;">1 doigt = poser/cliquer</span></div></div>
+          <div class="tuto-ctrl"><div class="tuto-key">↕️↔️ flèches</div><div><b>deplacer la grille</b><br><span style="font-size:12px;color:#64748b;">Place plus de batiments</span></div></div>
+                    <div class="tuto-ctrl"><div class="tuto-key">➕➖ loupe</div><div><b>zoom et dezoom sur grille</b><br><span style="font-size:12px;color:#df70ff;">Pour avoir plus facile à placer</span></div></div>
+        </div>
+        <div class="tuto-tip tuto-info">🔄 Pour <b>désélectionner un outil</b>, cliquez à nouveau dessus dans la liste de gauche. L'outil sélectionné apparaît avec un contour doré.</div>
+      </div>
+
+    </div><!-- /info-body -->
+  </div>
+</div>
+
+<div id="modal-tech" class="modal-overlay">
+
+<div class="modal-box">
+
+<h2>🔬 Arbre Technologique</h2>
+
+<div class="tech-grid" id="tech-tree"></div>
+
+<button class="btn-nav" onclick="document.getElementById('modal-tech').style.display='none'" style="margin-top:20px; width:100%; margin-left:0;">Fermer</button>
+
+</div>
+
+</div>
+
+
+
+<script>
+
+/* --- SYSTEME DE REDIMENSIONNEMENT TACTILE ET SOURIS --- */
+
+const setupResizers = () => {
+
+const resizerL = document.getElementById('resizer-left');
+
+const resizerR = document.getElementById('resizer-right');
+
+let isResizingL = false, isResizingR = false;
+
+
+
+const startResizingL = () => { isResizingL = true; resizerL.classList.add('active'); };
+
+const startResizingR = () => { isResizingR = true; resizerR.classList.add('active'); };
+
+
+
+resizerL.addEventListener('mousedown', startResizingL);
+
+resizerR.addEventListener('mousedown', startResizingR);
+
+resizerL.addEventListener('touchstart', startResizingL, {passive: true});
+
+resizerR.addEventListener('touchstart', startResizingR, {passive: true});
+
+
+
+const handleMove = (e) => {
+
+if (!isResizingL && !isResizingR) return;
+
+let clientX = e.touches && e.touches.length > 0 ? e.touches[0].clientX : e.clientX;
+
+
+
+if (isResizingL) {
+
+let w = clientX;
+
+if (w < 100) w = 100; if (w > document.body.clientWidth - 200) w = document.body.clientWidth - 200;
+
+document.documentElement.style.setProperty('--left-w', w + 'px');
+
+} else if (isResizingR) {
+
+let w = document.body.clientWidth - clientX;
+
+if (w < 100) w = 100; if (w > document.body.clientWidth - 200) w = document.body.clientWidth - 200;
+
+document.documentElement.style.setProperty('--right-w', w + 'px');
+
+}
+
+Grid.resize();
+
+};
+
+
+
+document.addEventListener('mousemove', handleMove);
+
+document.addEventListener('touchmove', handleMove, {passive: true});
+
+
+
+const stopResizing = () => {
+
+isResizingL = false; isResizingR = false;
+
+resizerL.classList.remove('active'); resizerR.classList.remove('active');
+
+};
+
+
+
+document.addEventListener('mouseup', stopResizing);
+
+document.addEventListener('touchend', stopResizing);
+
+document.addEventListener('touchcancel', stopResizing);
+
+};
+
+
+
+/* --- BASE DE DONNEES (AJOUT DES TAXES) --- */
+
+const DB = {
+
+buildings: {
+
+'delete': { type: 'tool', name: 'Détruire', cost: 0, color: '#ef4444', icon: '🧨', desc: 'Rase un bâtiment' },
+
+'road': { type: 'infra', name: 'Route', cost: 50, color: '#334155', icon: '🛣️', upkeep: 12 },
+
+// Ajout de la propriété "tax" pour les habitations
+
+'house_s': { type: 'zone', name: 'Cabane', cost: 200, color: '#22c55e', icon: '🏠', pop: 6, power: -2, upkeep: 100, tax: 900 },
+
+'research_center': { type: 'service', name: 'Centre de Recherche', cost: 5000, color: '#6366f1', icon: '🧬', jobs: 40, science: 30, power: -70, upkeep: 450 },
+
+'house_m': { type: 'zone', name: 'Pavillon', cost: 500, color: '#16a34a', icon: '🏡', pop: 16, power: -5, upkeep: 150, tax: 1200 },
+
+'stadium': { type: 'service', name: 'Stade', cost: 8000, color: '#10b981', icon: '⚽', jobs:27,happiness: 50, radius: 20 },
+
+'house_l': { type: 'zone', name: 'Immeuble', cost: 1200, color: '#15803d', icon: '🏢', pop: 215, power: -12, upkeep: 500, req: 'tech_density', tax: 3500 },
+
+'shop_s': { type: 'zone', name: 'Commerce', cost: 600, color: '#3b82f6', icon: '🏪', jobs: 8, power: -5, upkeep: 75 },
+
+'office': { type: 'zone', name: 'Bureaux', cost: 2000, color: '#1d4ed8', icon: '💼', jobs: 30, power: -15, upkeep: 175, req: 'tech_density' },
+
+'ind_s': { type: 'zone', name: 'Usine', cost: 1000, color: '#eab308', icon: '🏭', jobs: 15, power: -20, pollution: 5, upkeep: 305 },
+
+'recycle': { type: 'zone', name: 'Recyclage', cost: 3000, color: '#84cc16', icon: '♻️', jobs: 10, power: -20, pollution: -10, upkeep: 60, req: 'tech_green' },
+
+'turbine': { type: 'power', name: 'turbine à vagues', cost: 3000, color: '#84cc16', icon: '💦', jobs: 10, output: 550, upkeep: 60, ocean: 1, req: 'ocean' },
+
+'coal': { type: 'power', name: 'Centrale Charbon', cost: 1000, color: '#475569', icon: '🔥', output: 80, jobs: 8, pollution: 25, upkeep: 535 },
+
+'wind': { type: 'power', name: 'Éolienne', cost: 1500, color: '#06b6d4', icon: '🌀', output: 700, jobs: 3, upkeep: 15, req: 'tech_green' },
+
+'solar': { type: 'power', name: 'Solaire', cost: 3500, color: '#3b82f6', icon: '☀️', output: 300, jobs: 1, upkeep: 30, req: 'tech_green' },
+
+'nuclear': { type: 'power', name: 'Nucléaire', cost: 10000, color: '#6366f1', icon: '☢️', output: 500, jobs: 30, pollution: 5, upkeep: 250, req: 'tech_factoring' },
+
+'school': { type: 'service', name: 'École', cost: 4000, color: '#a855f7', icon: '🏫', jobs: 5, radius: 10, science: 3, upkeep: 120 },
+
+'police': { type: 'service', name: 'Police', cost: 3000, color: '#1e40af', icon: '👮', jobs: 6, radius: 10, happiness: 10, upkeep: 90, req: 'tech_security' },
+
+'park': { type: 'service', name: 'Parc', cost: 1000, color: '#84cc16', icon: '🌳', jobs: 1, happiness: 5, upkeep: 20 },
+
+'labs': { type: 'service', name: 'Super Labo', cost: 15000, color: '#8b5cf6', icon: '🧪', jobs: 20, science: 70, power: -50, upkeep: 400, req: 'tech_adv_science' },
+
+'strip-tease': { type: 'Culture', name: 'Strip-tease', cost: 1450, color: '#c24641', icon: '👯', jobs: 25, happiness: 50, power: -20, upkeep: 200, req: 'tech_culture' },
+
+'cyber_café': { type: 'gamming', name: 'cybercafé', cost: 1450, color: '#c24641', icon: '🤖', jobs: 15, happiness: 15, power: -20, upkeep: 400, req: 'tech_gamming' },
+
+'cyber_restau': { type: 'gamming', name: 'cyber-restaurant', cost: 2000, color: '#ff8700', icon: '🤖🍔', jobs: 40, happiness: 100, power: -120, upkeep: 600, req: 'tech_restoration' },
+
+'systeme_antidrone': { type: 'military', name: 'systeme antidrone', cost: 15000, color: '#354a21', icon: '🚫', jobs: 56, power: -435, upkeep: 1532, req: 'tech_military' },
+
+'militarybase_s': { type: 'military', name: 'petite base militaire', cost: 7000, color: '#354a21', icon: '🔈', jobs: 100, power: -500, upkeep: 700, req: 'tech_military' },
+
+'militarybase_m': { type: 'military', name: 'base militaire', cost: 14000, color: '#354a21', icon: '🔉', jobs: 200, power: -1000, upkeep: 1400, req: 'tech_military' },
+
+'militarybase_l': { type: 'military', name: 'grande base militaire', cost: 28000, color: '#354a21', icon: '🔊', jobs: 400, power: -2000, upkeep: 2800, req: 'tech_military' },
+
+'aerodrome': { type: 'military', name: 'aerodrome', cost: 28000, color: '#354a21', icon: '🛫', jobs: 100, power: -2000, upkeep: 2800, req: 'tech_military' },
+
+'weapons_factory': { type: 'factory', name: 'usine d`armes', cost: 28000, color: '#354a21', icon: '🏭🛠', jobs: 400, power: -2000, upkeep: 2800, req: 'tech_factoring' },
+
+'pc_factory': { type: 'factory', name: 'usine de pc', cost: 28000, color: '#354a21', icon: '🏭💻', jobs: 400, power: -2000, tax: 10000, upkeep: 2800, req: 'tech_factoring' },
+
+'zone_51': { type: 'labs', name: 'zone 51', cost: 1000000, color: '#354a21', icon: '👽', jobs: 250, power: -2000, tax: 100000, upkeep: 2500, req: 'tech_adv_military' },
+
+'particules_acc': { type: 'generator', name: 'accélérateur de particules', cost: 1000000000, color: '#354a21', icon: '⚛️', jobs: 100, output: 1000000, upkeep: 9000, req: 'tech_adv_military' },
+
+'bank_s': { type: 'generator', name: 'petite bank', cost: 10000, color: '#00ff00', icon: '🏧️', jobs: 100, tax: 100000, upkeep:7500, req: 'tech_density' },
+
+'bank_m': { type: 'generator', name: 'bank', cost: 100000, color: '#5fff00', icon: '💳', jobs: 150, tax: 1000000, upkeep: 8000, req: 'tech_density' },
+
+'bank_l': { type: 'generator', name: 'bank municipale', cost: 150000, color: '#00af5f', icon: '💶', jobs: 200, tax: 1500000, upkeep: 8500, req: 'tech_density' },
+
+// la nature de la ville
+
+'intersection': { type: 'inters', name: '🌿 Nature', color: '#00af5f', icon: '---', req: '...' },
+
+'ocean': { type: 'green', name: 'océan', cost: 5000, color: '#00005f', icon: '🌊', upkeep: 10000, req: 'tech_road_to_green' },
+
+'pond': { type: 'green', name: 'étang', cost: 3000, color: '#5f5f00', icon: '🏖️', upkeep: 6000, pollution: -10, req: 'tech_road_to_green' },
+
+'sea': { type: 'green', name: 'mer', cost: 8000, color: '#00afff', icon: '🌅', upkeep: 9000, pollution: -30, req: 'tech_road_to_green' },
+
+'forest': { type: 'green', name: 'forêt', cost: 4000, color: '#00af5f', icon: '🌳', upkeep: 1500, pollution: -15, req: 'tech_road_to_green' }
+
+},
+
+techs: {
+
+'tech_basic': { name: 'Départ', cost: 0, unlocked: true },
+
+'tech_culture': { name: 'Culture', cost: 125, parent: 'tech_density' },
+
+'tech_gamming': { name: 'Gamming', cost: 50, parent: 'tech_factoring' },
+
+'tech_density': { name: 'Urbanisme', cost: 100, parent: 'tech_basic' },
+
+'tech_green': { name: 'Écologie', cost: 200, parent: 'tech_road_to_green' },
+
+'tech_security': { name: 'Sécurité', cost: 300, parent: 'tech_density' },
+
+'tech_military': { name: 'Militaire', cost: 1000, parent: 'tech_security' },
+
+'tech_adv_science': { name: 'Physique', cost: 600, parent: 'tech_green' },
+
+'tech_factoring': { name: 'usinage', cost: 2500, parent: 'tech_density' },
+
+'tech_adv_military': { name: 'militaire avencé', cost: 5000, parent: 'tech_military'},
+
+'tech_road_to_green': { name: 'la route vers la nature', cost:25, parent: 'tech_basic' },
+
+'tech_restoration': { name: 'restoration', cost: 1000, parent: 'tech_gamming' }
+
+
+
+}
+
+};
+
+
+
+const State = {
+
+mode: null, money: 0, science: 0, time: 0,
+
+stats: { pop: 0, energy: 0, incomePerSec: 0, exportIncome: 0, taxIncome: 0, upkeepCosts: 0, pollution: 0, happiness: 100, jobs: 0, employed: 0 },
+
+techs: [], grid: [], config: { w: 60, h: 60, tileSize: 32 }, tool: null, camera: { x: 0, y: 0 }
+
+};
+
+
+
+const Game = {
+
+init: function() { Grid.init(); setupResizers(); },
+
+getCost: function(baseCost) {
+
+if (State.mode === 'creative') return 0;
+
+if (State.mode === 'hard') return Math.floor(baseCost * 1.5);
+
+return baseCost;
+
+},
+
+start: function(mode) {
+
+State.mode = mode; document.getElementById('launcher').style.display = 'none';
+
+State.techs = ['tech_basic']; State.science = 0; State.grid = [];
+
+for (let y = 0; y < State.config.h; y++) {
+
+for (let x = 0; x < State.config.w; x++) { State.grid.push({ x, y, type: null, powered: false, lacksWorkers: false }); }
+
+}
+
+if (mode === 'survival') { State.money = 2000; this.setupUI('survival'); Logger.log("Mode NORMAL.", 'sys'); }
+
+else if (mode === 'hard') { State.money = 500; this.setupUI('hard'); Logger.log("Mode DIFFICILE.", 'hard'); }
+
+else { State.money = Infinity; State.techs = Object.keys(DB.techs); State.science = Infinity; this.setupUI('creative'); Logger.log("Mode CRÉATIF.", 'gold'); }
+
+UI.init(); this.loop();
+
+},
+
+setupUI: function(mode) {
+
+const btn = document.getElementById('btn-clicker'), lbl = document.getElementById('mode-label'), techBtn = document.getElementById('btn-tech');
+
+if (mode === 'survival') { btn.innerText = "💸 TRAVAIL"; btn.style.background = "linear-gradient(45deg, #f59e0b, #d97706)"; lbl.innerText = "NORMAL"; lbl.style.background = "#22c55e"; techBtn.style.display = 'block'; }
+
+else if (mode === 'hard') { btn.innerText = "💀 SURVIVRE"; btn.style.background = "linear-gradient(45deg, #7f1d1d, #b91c1c)"; lbl.innerText = "DIFFICILE"; lbl.style.background = "#dc2626"; techBtn.style.display = 'block'; }
+
+else { btn.innerText = "✨ MAGIE"; btn.style.background = "linear-gradient(45deg, #8b5cf6, #ec4899)"; lbl.innerText = "CRÉATIF"; lbl.style.background = "#8b5cf6"; techBtn.style.display = 'none'; }
+
+},
+
+loop: function() { requestAnimationFrame(Game.loop); State.time++; if (State.time % 60 === 0) Game.tick(); Grid.draw(); },
+
+tick: function() {
+
+Simulation.updateResources();
+
+if (State.mode !== 'creative') {
+
+State.money += State.stats.incomePerSec;
+
+if (State.money < -500 && State.time % 300 === 0) Logger.log("⚠️ Tes dettes s'accumulent !", 'err');
+
+} else { State.money = Infinity; }
+
+UI.updateStats();
+
+},
+
+clickAction: function(e) {
+
+const btn = document.getElementById('btn-clicker');
+
+let x = e && e.clientX ? e.clientX : btn.getBoundingClientRect().left + 100;
+
+let y = e && e.clientY ? e.clientY : btn.getBoundingClientRect().top;
+
+
+
+if (State.mode !== 'creative') {
+
+let base = 50 + (State.stats.pop * 2) + (State.science * 1);
+
+if (State.mode === 'hard') base = Math.floor(base * 0.5);
+
+State.money += base;
+
+UI.createFloatingText(x, y, `+${base}€`, '#ffd700');
+
+} else { UI.createFloatingText(x, y, "✨", '#e879f9'); }
+
+UI.updateStats();
+
+}
+
+};
+
+
+
+const Grid = {
+
+canvas: document.getElementById('gameCanvas'),
+
+ctx: document.getElementById('gameCanvas').getContext('2d'),
+
+init: function() {
+
+this.resize(); window.addEventListener('resize', this.resize.bind(this));
+
+let isDragging = false, lastX, lastY;
+
+
+
+this.canvas.addEventListener('mousedown', e => {
+
+if (e.button === 2 || e.button === 1) { isDragging = true; lastX = e.clientX; lastY = e.clientY; e.preventDefault(); }
+
+else if (e.button === 0 && !State.tool) { isDragging = true; lastX = e.clientX; lastY = e.clientY; }
+
+else if (e.button === 0) Grid.handleClick(e.clientX, e.clientY);
+
+});
+
+/* TOUCH : 1 doigt = poser, 2 doigts = pan/pinch */
+let touchStart = null, touch2Start = null, camAtTouchStart = null;
+this.canvas.addEventListener('touchstart', e => {
+  if (e.touches.length === 1) {
+    touchStart = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+    camAtTouchStart = { x: State.camera.x, y: State.camera.y };
+    touch2Start = null;
+  } else if (e.touches.length === 2) {
+    touchStart = null;
+    touch2Start = {
+      x: (e.touches[0].clientX + e.touches[1].clientX) / 2,
+      y: (e.touches[0].clientY + e.touches[1].clientY) / 2,
+      dist: Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY)
+    };
+    camAtTouchStart = { x: State.camera.x, y: State.camera.y, zoom: State.camera.zoom || 1 };
+  }
+}, {passive: true});
+
+this.canvas.addEventListener('touchmove', e => {
+  e.preventDefault();
+  if (e.touches.length === 1 && touchStart) {
+    const dx = e.touches[0].clientX - touchStart.x;
+    const dy = e.touches[0].clientY - touchStart.y;
+    if (Math.abs(dx) > 5 || Math.abs(dy) > 5) {
+      State.camera.x = camAtTouchStart.x + dx;
+      State.camera.y = camAtTouchStart.y + dy;
+      touchStart = null; // switched to pan
+    }
+  } else if (e.touches.length === 2 && touch2Start) {
+    const mx = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+    const my = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+    State.camera.x = camAtTouchStart.x + (mx - touch2Start.x);
+    State.camera.y = camAtTouchStart.y + (my - touch2Start.y);
+    const dist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
+    const ratio = dist / touch2Start.dist;
+    Grid.setZoom((camAtTouchStart.zoom || 1) * ratio, mx, my);
+  }
+}, {passive: false});
+
+this.canvas.addEventListener('touchend', e => {
+  if (e.changedTouches.length && touchStart) {
+    const t = e.changedTouches[0];
+    if (Math.abs(t.clientX - touchStart.x) < 8 && Math.abs(t.clientY - touchStart.y) < 8) {
+      Grid.handleClick(t.clientX, t.clientY);
+    }
+  }
+  touchStart = null; touch2Start = null;
+}, {passive: true});
+
+/* ZOOM MOLETTE */
+this.canvas.addEventListener('wheel', e => {
+  e.preventDefault();
+  const rect = this.canvas.getBoundingClientRect();
+  const mx = e.clientX - rect.left;
+  const my = e.clientY - rect.top;
+  const delta = e.deltaY > 0 ? 0.9 : 1.1;
+  const cur = State.camera.zoom || 1;
+  Grid.setZoom(cur * delta, e.clientX, e.clientY);
+}, { passive: false });
+
+window.addEventListener('mouseup', () => isDragging = false);
+
+window.addEventListener('mousemove', e => {
+
+if (isDragging) { State.camera.x += e.clientX - lastX; State.camera.y += e.clientY - lastY; lastX = e.clientX; lastY = e.clientY; }
+
+Grid.handleHover(e.clientX, e.clientY);
+
+});
+
+this.canvas.addEventListener('contextmenu', e => e.preventDefault());
+
+/* CLAVIER WASD / FLÈCHES */
+const PAN_SPEED = 20;
+window.addEventListener('keydown', e => {
+  if (['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','a','d','w','s'].includes(e.key)) {
+    if (document.activeElement && document.activeElement.tagName === 'INPUT') return;
+    e.preventDefault();
+    const z = State.camera.zoom || 1;
+    const spd = PAN_SPEED / z;
+    if (e.key === 'ArrowLeft'  || e.key === 'a') State.camera.x += spd;
+    if (e.key === 'ArrowRight' || e.key === 'd') State.camera.x -= spd;
+    if (e.key === 'ArrowUp'    || e.key === 'w') State.camera.y += spd;
+    if (e.key === 'ArrowDown'  || e.key === 's') State.camera.y -= spd;
+  }
+  if (e.key === '+' || e.key === '=') { const c = Grid.canvas; Grid.setZoom((State.camera.zoom||1)*1.15, c.width/2, c.height/2); }
+  if (e.key === '-')                  { const c = Grid.canvas; Grid.setZoom((State.camera.zoom||1)*0.87, c.width/2, c.height/2); }
+  if (e.key === 'Home' || e.key === 'c') Grid.centerCamera();
+});
+
+},
+
+resize: function() { Grid.canvas.width = document.getElementById('viewport').clientWidth; Grid.canvas.height = document.getElementById('viewport').clientHeight; },
+
+getTileAt: function(clientX, clientY) {
+
+const rect = this.canvas.getBoundingClientRect();
+const z = State.camera.zoom || 1;
+const x = Math.floor(((clientX - rect.left) - State.camera.x) / (State.config.tileSize * z));
+
+const y = Math.floor(((clientY - rect.top) - State.camera.y) / (State.config.tileSize * z));
+
+if (x >= 0 && x < State.config.w && y >= 0 && y < State.config.h) return State.grid[y * State.config.w + x];
+
+return null;
+
+},
+
+handleClick: function(x, y) {
+
+const tile = this.getTileAt(x, y);
+
+if (!tile) return;
+
+if (State.tool) {
+
+if (State.tool === 'delete') {
+
+if (tile.type) { tile.type = null; tile.powered = false; tile.lacksWorkers = false; UI.createFloatingText(x, y, "💥", '#ef4444'); Simulation.refreshPowerNet(); UI.updateStats(); }
+
+return;
+
+}
+
+const b = DB.buildings[State.tool]; const cost = Game.getCost(b.cost);
+
+if (State.mode !== 'creative') {
+
+if (tile.type) return Logger.log("Occupé !", 'err');
+
+if (State.money >= cost) { State.money -= cost; tile.type = State.tool; UI.createFloatingText(x, y, `-${cost}€`, '#ef4444'); }
+
+else { return Logger.log("Pas assez d'argent !", 'err'); }
+
+} else { tile.type = State.tool; UI.createFloatingText(x, y, "✨", '#a78bfa'); }
+
+Simulation.refreshPowerNet(); UI.updateStats();
+
+}
+
+},
+
+handleHover: function(clientX, clientY) {
+
+const tile = this.getTileAt(clientX, clientY); const tooltip = document.getElementById('hover-tooltip');
+
+if (tile && tile.type) {
+
+const b = DB.buildings[tile.type];
+
+tooltip.style.display = 'block'; tooltip.style.left = (clientX + 15) + 'px'; tooltip.style.top = (clientY + 15) + 'px';
+
+let status = '';
+
+if (tile.lacksWorkers && State.mode !== 'creative') status = '<br><span style="color:#f97316">👷 Manque de travailleurs!</span>';
+
+else if (!tile.powered && b.type !== 'power' && !b.pop && State.mode !== 'creative') status = '<br><span style="color:#ef4444">⚡ Pas de courant!</span>';
+
+tooltip.innerHTML = `<b>${b.name}</b>${status}`;
+
+} else { tooltip.style.display = 'none'; }
+
+},
+
+setZoom: function(newZoom, pivotX, pivotY) {
+  const MIN = 0.3, MAX = 3;
+  newZoom = Math.min(MAX, Math.max(MIN, newZoom));
+  const old = State.camera.zoom || 1;
+  const rect = this.canvas.getBoundingClientRect();
+  const px = (pivotX !== undefined ? pivotX - rect.left : this.canvas.width / 2);
+  const py = (pivotY !== undefined ? pivotY - rect.top  : this.canvas.height / 2);
+  // Adjust camera so pivot stays fixed
+  State.camera.x = px - (px - State.camera.x) * (newZoom / old);
+  State.camera.y = py - (py - State.camera.y) * (newZoom / old);
+  State.camera.zoom = newZoom;
+  document.getElementById('zoom-label').textContent = Math.round(newZoom * 100) + '%';
+},
+
+centerCamera: function() {
+  const z = State.camera.zoom || 1;
+  const size = State.config.tileSize * z;
+  const gridW = State.config.w * size;
+  const gridH = State.config.h * size;
+  State.camera.x = (this.canvas.width  - gridW) / 2;
+  State.camera.y = (this.canvas.height - gridH) / 2;
+  document.getElementById('zoom-label').textContent = Math.round(z * 100) + '%';
+},
+
+draw: function() {
+
+this.ctx.fillStyle = '#050b14'; this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+const z = State.camera.zoom || 1;
+this.ctx.save(); this.ctx.translate(State.camera.x, State.camera.y); this.ctx.scale(z, z);
+
+const size = State.config.tileSize;
+
+State.grid.forEach(tile => {
+
+const px = tile.x * size; const py = tile.y * size;
+
+this.ctx.fillStyle = '#0f172a'; this.ctx.fillRect(px, py, size - 1, size - 1);
+
+if (tile.type) {
+
+const b = DB.buildings[tile.type];
+
+this.ctx.fillStyle = b.color; this.ctx.fillRect(px + 2, py + 2, size - 5, size - 5);
+
+this.ctx.font = '16px Arial'; this.ctx.textAlign = 'center'; this.ctx.textBaseline = 'middle';
+
+this.ctx.fillText(b.icon, px + size/2, py + size/2);
+
+if (State.mode !== 'creative') {
+
+if (tile.lacksWorkers) { this.ctx.strokeStyle = '#f97316'; this.ctx.lineWidth = 2; this.ctx.strokeRect(px+2, py+2, size-5, size-5); }
+
+else if (!tile.powered && b.type !== 'power' && !b.pop) { this.ctx.strokeStyle = '#ef4444'; this.ctx.lineWidth = 2; this.ctx.strokeRect(px+2, py+2, size-5, size-5); }
+
+}
+
+}
+
+});
+
+this.ctx.restore();
+
+}
+
+};
+
+
+
+const Simulation = {
+
+updateResources: function() {
+
+let pop = 0;
+
+State.grid.forEach(tile => {
+
+if (tile.type && DB.buildings[tile.type].pop) pop += DB.buildings[tile.type].pop;
+
+tile.lacksWorkers = false;
+
+});
+
+
+
+let availableWorkers = pop, jobSeekers = [], totalJobs = 0, employed = 0;
+
+
+
+State.grid.forEach(tile => {
+
+if (!tile.type) return;
+
+const b = DB.buildings[tile.type];
+
+if (b.jobs) { totalJobs += b.jobs; jobSeekers.push(tile); }
+
+});
+
+
+
+jobSeekers.sort((a, b) => {
+
+const isPowerA = DB.buildings[a.type].type === 'power' ? 0 : 1;
+
+const isPowerB = DB.buildings[b.type].type === 'power' ? 0 : 1;
+
+return isPowerA - isPowerB;
+
+});
+
+
+
+jobSeekers.forEach(tile => {
+
+const b = DB.buildings[tile.type];
+
+if (State.mode === 'creative') { employed += b.jobs; }
+
+else if (availableWorkers >= b.jobs) { availableWorkers -= b.jobs; employed += b.jobs; }
+
+else { tile.lacksWorkers = true; }
+
+});
+
+
+
+let powerProd = 0, powerCons = 0, scienceGen = 0;
+
+let expenses = 0, pollution = 0, happiness = 100, taxIncome = 0;
+
+
+
+State.grid.forEach(tile => {
+
+if (!tile.type) return;
+
+const b = DB.buildings[tile.type];
+
+if (b.type === 'tool') return;
+
+
+
+let isActive = true;
+
+if (State.mode !== 'creative') {
+
+if (tile.lacksWorkers) isActive = false;
+
+if (!tile.powered && b.type !== 'power' && !b.pop) isActive = false;
+
+}
+
+
+
+if (b.upkeep) expenses += b.upkeep;
+
+if (b.power && b.power < 0) powerCons += Math.abs(b.power);
+
+
+
+if (isActive) {
+
+if (b.output) powerProd += b.output;
+
+if (b.science) scienceGen += b.science;
+
+if (b.pollution) pollution += b.pollution;
+
+if (b.happiness) happiness += b.happiness;
+
+// --- AJOUT DU CALCUL DES TAXES ---
+
+if (b.tax) taxIncome += b.tax;
+
+}
+
+});
+
+
+
+let energySurplus = powerProd - powerCons;
+
+let exportIncome = 0;
+
+if (energySurplus > 0 && State.mode !== 'creative') { exportIncome = energySurplus * 3; }
+
+
+
+if (pop > 0) {
+
+if (totalJobs < pop * 0.3) happiness -= 15;
+
+happiness -= Math.max(0, pollution * 2);
+
+}
+
+happiness = Math.max(0, Math.min(100, happiness));
+
+
+
+State.stats.pop = pop; State.stats.jobs = totalJobs; State.stats.employed = employed;
+
+State.stats.energy = energySurplus; State.stats.pollution = pollution; State.stats.happiness = Math.floor(happiness);
+
+
+
+if (State.mode !== 'creative') {
+
+State.science += (scienceGen / 10);
+
+if (State.mode === 'hard') { expenses = Math.floor(expenses * 1.5); exportIncome = Math.floor(exportIncome * 0.5); taxIncome = Math.floor(taxIncome * 0.8); }
+
+
+
+State.stats.upkeepCosts = expenses;
+
+State.stats.exportIncome = exportIncome;
+
+State.stats.taxIncome = taxIncome;
+
+
+
+// Nouveau calcul du revenu total : Taxes + Exports - Entretien
+
+State.stats.incomePerSec = State.stats.taxIncome + State.stats.exportIncome - State.stats.upkeepCosts;
+
+
+
+let baseClick = 50 + (pop * 2) + (State.science * 1);
+
+if (State.mode === 'hard') baseClick *= 0.5;
+
+document.getElementById('click-val').innerText = `Clic : +${Math.floor(baseClick)}€`;
+
+}
+
+},
+
+
+
+refreshPowerNet: function() {
+
+State.grid.forEach(t => t.powered = false); let queue = [];
+
+State.grid.forEach(t => {
+
+if (t.type && DB.buildings[t.type].type === 'power' && !t.lacksWorkers) { t.powered = true; queue.push(t); }
+
+});
+
+const dirs = [[0,1], [0,-1], [1,0], [-1,0]];
+
+while(queue.length > 0) {
+
+let curr = queue.shift();
+
+dirs.forEach(d => {
+
+let nx = curr.x + d[0], ny = curr.y + d[1];
+
+if(nx >= 0 && nx < State.config.w && ny >= 0 && ny < State.config.h) {
+
+let n = State.grid[ny*State.config.w+nx];
+
+if(n.type && !n.powered && DB.buildings[n.type].type !== 'tool') { n.powered = true; queue.push(n); }
+
+}
+
+});
+
+}
+
+}
+
+};
+
+
+
+const UI = {
+
+init: function() { this.renderBuildMenu(); this.renderTechTree(); },
+
+createFloatingText: function(x, y, text, color) {
+
+const el = document.createElement('div'); el.className = 'floater'; el.style.left = x + 'px'; el.style.top = y + 'px'; el.innerText = text; el.style.color = color;
+
+document.body.appendChild(el); setTimeout(() => el.remove(), 1000);
+
+},
+
+setTab: function(tab) { if(tab === 'build') document.getElementById('build-menu').style.display='block'; },
+
+renderBuildMenu: function() {
+
+const c = document.getElementById('build-menu'); c.innerHTML = '';
+
+Object.keys(DB.buildings).forEach(k => {
+
+const b = DB.buildings[k];
+
+if (b.type === 'inters') {
+  const sep = document.createElement('div');
+  sep.className = 'build-separator';
+  sep.innerHTML = `<span>${b.name}</span>`;
+  c.appendChild(sep);
+  return;
+}
+
+const div = document.createElement('div'); div.className = 'build-card';
+
+if (State.mode !== 'creative' && b.req && !State.techs.includes(b.req)) div.classList.add('disabled');
+
+
+
+div.onclick = () => {
+
+if (div.classList.contains('disabled')) return;
+
+if (State.tool === k) { State.tool = null; div.classList.remove('selected'); }
+
+else { document.querySelectorAll('.build-card').forEach(x => x.classList.remove('selected')); div.classList.add('selected'); State.tool = k; }
+
+};
+
+
+
+let priceStr = '', statStr = '';
+
+if (b.type === 'tool') { priceStr = `<span style="color:#ef4444">GRATUIT</span>`; }
+
+else {
+
+const realCost = Game.getCost(b.cost);
+
+priceStr = State.mode === 'creative' ? `<span style="color:#a78bfa">GRATUIT</span>` : `${realCost}€`;
+
+if(b.jobs) statStr += ` | 👷 ${b.jobs}`;
+
+if(b.pop) statStr += ` | 👥 ${b.pop}`;
+
+if(b.tax) statStr += ` | <span style="color:#22c55e">💰 +${b.tax}€/s</span>`;
+
+if(b.upkeep) statStr += ` | <span style="color:#ef4444">📉 -${b.upkeep}€/s</span>`;
+
+}
+
+
+
+div.innerHTML = `<div class="b-icon" style="color:${b.color}">${b.icon}</div><div class="b-info"><b>${b.name}</b><small>${priceStr}${statStr}</small></div>`;
+
+c.appendChild(div);
+
+});
+
+},
+
+renderTechTree: function() {
+
+const t = document.getElementById('tech-tree'); t.innerHTML = '';
+
+Object.keys(DB.techs).forEach(k => {
+
+const tech = DB.techs[k], d = document.createElement('div'), unlocked = State.techs.includes(k), parentOK = !tech.parent || State.techs.includes(tech.parent);
+
+d.className = `tech-node ${unlocked ? 'unlocked' : (parentOK ? 'available' : '')}`; d.innerText = `${tech.name} (${tech.cost} Sc)`;
+
+d.onclick = () => {
+
+if(State.mode === 'creative') return;
+
+if(!unlocked && parentOK && State.science >= tech.cost) { State.science -= tech.cost; State.techs.push(k); UI.renderTechTree(); UI.renderBuildMenu(); Logger.log("Tech débloquée !", 'sys'); }
+
+};
+
+t.appendChild(d);
+
+});
+
+},
+
+openTechTree: function() { document.getElementById('modal-tech').style.display = 'flex'; },
+
+updateStats: function() {
+
+document.getElementById('ui-pop').innerText = State.stats.pop;
+
+document.getElementById('ui-energy').innerText = State.stats.energy;
+
+document.getElementById('ui-energy').style.color = State.stats.energy >= 0 ? '#f472b6' : '#ef4444';
+
+
+
+if (State.mode !== 'creative') {
+
+document.getElementById('ui-money').innerText = Math.floor(State.money);
+
+document.getElementById('ui-science').innerText = Math.floor(State.science);
+
+
+
+// Mise à jour de l'affichage avec la nouvelle stat de taxes
+
+document.getElementById('ui-tax').innerText = '+' + State.stats.taxIncome + '€/s';
+
+document.getElementById('ui-export').innerText = '+' + State.stats.exportIncome + '€/s';
+
+document.getElementById('ui-upkeep').innerText = '-' + State.stats.upkeepCosts + '€/s';
+
+
+
+const inc = State.stats.incomePerSec;
+
+const incEl = document.getElementById('ui-income');
+
+incEl.innerText = (inc >= 0 ? '+' : '') + inc + '€/s';
+
+incEl.style.color = inc >= 0 ? '#22c55e' : '#ef4444';
+
+} else {
+
+document.getElementById('ui-money').innerText = "∞"; document.getElementById('ui-science').innerText = "∞";
+
+document.getElementById('ui-tax').innerText = "ILLIMITÉ"; document.getElementById('ui-export').innerText = "ILLIMITÉ";
+
+document.getElementById('ui-upkeep').innerText = "0"; document.getElementById('ui-income').innerText = "ILLIMITÉ";
+
+}
+
+
+
+const hap = State.stats.happiness;
+
+document.getElementById('bar-happy').style.width = hap + "%";
+
+document.getElementById('bar-happy').style.background = hap > 80 ? '#22c55e' : (hap > 40 ? '#facc15' : '#ef4444');
+
+document.getElementById('ui-happy').innerText = hap + "%";
+
+
+
+document.getElementById('bar-pol').style.width = Math.min(100, State.stats.pollution * 2) + "%";
+
+document.getElementById('ui-pol').innerText = State.stats.pollution;
+
+
+
+const jobPerc = State.stats.pop > 0 ? Math.min(100, (State.stats.employed / State.stats.pop) * 100) : 0;
+
+document.getElementById('bar-jobs').style.width = jobPerc + "%";
+
+document.getElementById('ui-jobs').innerText = `${State.stats.employed} / ${State.stats.pop}`;
+
+}
+
+};
+
+
+
+const Logger = { log: (m,t='info') => {
+
+const p = document.getElementById('log-panel'), d = document.createElement('div');
+
+d.className=`log-entry log-${t}`; d.innerText = m; p.prepend(d);
+
+}};
+
+
+
+window.onload = () => Game.init();
+
+function tutoNav(idx) {
+  document.querySelectorAll('.tuto-page').forEach((p,i) => p.style.display = i===idx ? '' : 'none');
+  document.querySelectorAll('.tuto-tab').forEach((t,i) => t.classList.toggle('active', i===idx));
+  const label = document.querySelectorAll('.tuto-tab')[idx]?.dataset.label || '';
+  const el = document.getElementById('tuto-section-label');
+  if(el) el.textContent = label;
+}
+
+function panDir(dx, dy) {
+  const z = State.camera.zoom || 1;
+  const spd = 60 / z;
+  State.camera.x -= dx * spd;
+  State.camera.y -= dy * spd;
+}
+
+</script>
+
+</body>
+
+</html>
+
